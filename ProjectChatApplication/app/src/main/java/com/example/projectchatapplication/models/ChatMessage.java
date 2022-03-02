@@ -7,4 +7,5 @@ public class ChatMessage implements Serializable {
     public String senderId, receiverID, message, dateTime;
 
     public Date dateObject;
+    public String conversionId, conversionName, conversionImage;
 }

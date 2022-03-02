@@ -41,7 +41,7 @@
         android:layout_marginTop="@dimen/_4sdp"
         android:textColor="@color/secondary_text"
         android:textSize="@dimen/_8ssp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintLeft_toLeftOf="@id/textMessage"
         app:layout_constraintTop_toBottomOf="@+id/textMessage"/>
 
 

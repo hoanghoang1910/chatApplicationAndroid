@@ -3,6 +3,10 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Spring2022/PRM/Final-project-chatapp/chatApplicationAndroid/ProjectChatApplication/app/src/main/res/layout/activity_main.xml" value="0.27291666666666664" />
+        <entry key="..\:/Spring2022/PRM/Final-project-chatapp/chatApplicationAndroid/ProjectChatApplication/app/src/main/res/layout/item_container_received_message.xml" value="0.3416666666666667" />
+        <entry key="..\:/Spring2022/PRM/Final-project-chatapp/chatApplicationAndroid/ProjectChatApplication/app/src/main/res/layout/item_container_recent_conversion.xml" value="0.17239583333333333" />
+        <entry key="..\:/Spring2022/PRM/Final-project-chatapp/chatApplicationAndroid/ProjectChatApplication/app/src/main/res/layout/item_container_sent_message.xml" value="0.3416666666666667" />
         <entry key="..\:/Spring2022/PRM/ProjectChatApplication/app/src/main/res/drawable/backgroun_content_top.xml" value="0.30885416666666665" />
         <entry key="..\:/Spring2022/PRM/ProjectChatApplication/app/src/main/res/drawable/background_chat_input.xml" value="0.30885416666666665" />
         <entry key="..\:/Spring2022/PRM/ProjectChatApplication/app/src/main/res/drawable/background_content_bottom.xml" value="0.309375" />
