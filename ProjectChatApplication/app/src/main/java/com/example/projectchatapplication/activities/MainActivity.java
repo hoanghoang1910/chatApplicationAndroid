@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 import com.example.projectchatapplication.adapter.RecentConversationsAdapter;
 import com.example.projectchatapplication.databinding.ActivityMainBinding;
-import com.example.projectchatapplication.listeners.ConversionListener;
+import com.example.projectchatapplication.listeners.ConversationListener;
 import com.example.projectchatapplication.models.ChatMessage;
 import com.example.projectchatapplication.models.User;
 import com.example.projectchatapplication.utilities.Constants;
@@ -30,7 +30,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements ConversionListener
+public class MainActivity extends AppCompatActivity implements ConversationListener
 {
 
     private ActivityMainBinding binding;
@@ -105,14 +105,14 @@ public class MainActivity extends AppCompatActivity implements ConversionListene
                     chatMessage.senderId = senderId;
                     chatMessage.receiverID = receiverId;
                     if(preferenceManager.getString(Constants.KEY_USER_ID).equals(senderId)){
-                        chatMessage.conversionImage = documentChange.getDocument().getString(Constants.KEY_RECEIVER_IMAGE);
-                        chatMessage.conversionName = documentChange.getDocument().getString(Constants.KEY_RECEIVER_NAME);
-                        chatMessage.conversionId = documentChange.getDocument().getString(Constants.KEY_RECEIVER_ID);
+                        chatMessage.conversationImage = documentChange.getDocument().getString(Constants.KEY_RECEIVER_IMAGE);
+                        chatMessage.conversationName = documentChange.getDocument().getString(Constants.KEY_RECEIVER_NAME);
+                        chatMessage.conversationId = documentChange.getDocument().getString(Constants.KEY_RECEIVER_ID);
                     }
                     else{
-                        chatMessage.conversionImage = documentChange.getDocument().getString(Constants.KEY_SENDER_IMAGE);
-                        chatMessage.conversionName = documentChange.getDocument().getString(Constants.KEY_SENDER_NAME);
-                        chatMessage.conversionId = documentChange.getDocument().getString(Constants.KEY_SENDER_ID);
+                        chatMessage.conversationImage = documentChange.getDocument().getString(Constants.KEY_SENDER_IMAGE);
+                        chatMessage.conversationName = documentChange.getDocument().getString(Constants.KEY_SENDER_NAME);
+                        chatMessage.conversationId = documentChange.getDocument().getString(Constants.KEY_SENDER_ID);
                     }
                     chatMessage.message = documentChange.getDocument().getString(Constants.KEY_LAST_MESSAGE);
                     chatMessage.dateObject = documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP);
