@@ -114,7 +114,7 @@
             android:layout_marginTop="@dimen/_16sdp"
             android:animateLayoutChanges="true">
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/buttonSignUp"
+                android:id="@+id/buttonConfirmChgInfo"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_50sdp"
                 android:text="@string/sign_up"

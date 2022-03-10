@@ -1,9 +1,13 @@
 package com.example.projectchatapplication.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
 import android.view.View;
@@ -179,4 +183,22 @@ public class ChatActivity extends AppCompatActivity {
             conversionId = documentSnapshot.getId();
         }
     };
+
+    private void sendNotification(String title, String message){
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(this, Constants.NOTIFICATION_CHANNEL)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setSmallIcon(android.R.drawable.ic_dialog_info);
+        NotificationManager manager = (NotificationManager) getSystemService(Constants.NOTIFICATION_CHANNEL);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            NotificationChannel channel = new NotificationChannel(
+                    Constants.NOTIFICATION_CHANNEL,
+                    "New Message",
+                    NotificationManager.IMPORTANCE_HIGH
+            );
+            manager.createNotificationChannel(channel);
+        }
+        manager.notify(Constants.NOTIFICATION_ID, builder.build());
+    }
 }
