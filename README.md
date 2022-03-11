@@ -416,9 +416,168 @@ Tất nhiên khi bật app lên mình sẽ check trong sharedPreference trước
 ```
 
 ## Chat logic
-Comming-soon nhá
+
+**Load tin nhắn của cuộc trò chuyện:** Phần này sẽ thao tác hoàn toàn trong bảng chat. Đầu tiên là xác định sender và receiver sau đó mình có thể lấy ra được tất cả các đoạn chat được gửi đi bởi 2 người đó qua trường senderId và receiverId. Sau khi lấy đc list các chat messages rồi thì sử dụng Collections để sort list lấy được theo thời gian gửi => mình đã có 1 list chat message được sắp xếp đúng thứ tự rồi.
+
+**Lấy receiver ở activity home truyền sang:**
+```
+private void loadReceiverDetails(){
+        receivedUser = (User) getIntent().getSerializableExtra(Constants.KEY_USER);
+        binding.textName.setText(receivedUser.name);
+    }
+```
+
+```
+ private final EventListener<QuerySnapshot> eventListener = ((value, error) -> {
+      if(error != null){
+          return;
+      }
+        // value ở đây là dạng 1 query snapshot trong đó chứa 1 hoặc nhiều document snapshot
+        //  trong trường hợp này mình sử dụng để loop qua tất cả các thay đổi vừa đc nghe thấy trong database
+      if(value != null){
+          int count = chatMessages.size();
+          // loop qua tất cả các bản ghi có sự thay đổi
+          for(DocumentChange documentChange : value.getDocumentChanges()){
+              // Nếu bản ghi mới đc add vào thì thực hiện thêm mới vào list chat
+              // ngoài ra kiểu documentChange còn có các type như modified hay removed tùy vào điều kiện mọi người muốn bắt
+             if(documentChange.getType() == DocumentChange.Type.ADDED){
+                 // đoạn này là lấy ra đoạn chat vừa đc thêm mới rồi lưu vào object thôi
+                 ChatMessage chatMessage = new ChatMessage();
+                 chatMessage.senderId = documentChange.getDocument().getString(Constants.KEY_SENDER_ID);
+                 chatMessage.receiverID = documentChange.getDocument().getString(Constants.KEY_RECEIVER_ID);
+                 chatMessage.message = documentChange.getDocument().getString(Constants.KEY_MESSAGE);
+                 chatMessage.dateTime = getReadableDate(documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP));
+                 chatMessage.dateObject = documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP);
+                 //add vào list này
+                 chatMessages.add(chatMessage);
+             }
+          }
+          Collections.sort(chatMessages, (obj1, obj2) -> obj1.dateObject.compareTo(obj2.dateObject));
+          if(count == 0){
+              chatAdapter.notifyDataSetChanged();
+          }
+          else{
+              chatAdapter.notifyItemRangeInserted(chatMessages.size(), chatMessages.size());
+              binding.chatRecycleView.smoothScrollToPosition(chatMessages.size() - 1);
+          }
+          binding.chatRecycleView.setVisibility(View.VISIBLE);
+      }
+      binding.progressBar.setVisibility(View.GONE);
+      if(conversationId == null){
+          checkForConversation();
+      }
+   });
+```
+
+**Logic một cách ngắn gọn cho phần gửi tin nhắn này:** Trong database mình cho collection chat gồm senderId và receiverId, cứ mỗi lần sender nhấn gửi một tin nhắn, tất nhiên việc đầu tiên mình làm là xác định receiverId sau khi có 2 giá trị đó mình cần check xem 2 user đó đã có chat messages nào tồn tại không => nếu có thì lấy document key của conversation đó ra để tiến hành update cái tinh nhắn mới nhất các thứ (phục vụ cho homescreen).
+
+```
+private void sendMessage(){
+        HashMap<String, Object> message = new HashMap<>();
+        message.put(Constants.KEY_SENDER_ID, preferenceManger.getString(Constants.KEY_USER_ID));
+        message.put(Constants.KEY_RECEIVER_ID, receivedUser.id);
+        message.put(Constants.KEY_MESSAGE, binding.inputMessage.getText().toString());
+        message.put(Constants.KEY_TIMESTAMP,new Date());
+        database.collection(Constants.KEY_COLLECTION_CHAT).add(message);
+        if(conversationId != null){
+            updateConversation(binding.inputMessage.getText().toString());
+        }
+        else{
+            HashMap<String, Object> conversation = new HashMap<>();
+            conversation.put(Constants.KEY_SENDER_ID, preferenceManger.getString(Constants.KEY_USER_ID));
+            conversation.put(Constants.KEY_SENDER_NAME, preferenceManger.getString(Constants.KEY_NAME));
+            conversation.put(Constants.KEY_SENDER_IMAGE, preferenceManger.getString(Constants.KEY_IMAGE));
+            conversation.put(Constants.KEY_RECEIVER_NAME, receivedUser.name);
+            conversation.put(Constants.KEY_RECEIVER_IMAGE, receivedUser.image);
+            conversation.put(Constants.KEY_LAST_MESSAGE, binding.inputMessage.getText().toString());
+            conversation.put(Constants.KEY_TIMESTAMP, new Date());
+            addConversation(conversation);
+        }
+        binding.inputMessage.setText(null);
+    }
+```
+Tất nhiên để UI có thể nghe thấy thay đổi từ cuộc trò chuyện này thì mình cần add snapshotListener ở cả 2 đầu của 2 người (cả sender lẫn receiver để sender gửi tin nhắn => update UI, receiver gửi tin nhắn => Update UI). 
+
+```
+private void listenMessages(){
+        database.collection(Constants.KEY_COLLECTION_CHAT)
+                .whereEqualTo(Constants.KEY_SENDER_ID, preferenceManger.getString(Constants.KEY_USER_ID))
+                .whereEqualTo(Constants.KEY_RECEIVER_ID, receivedUser.id)
+                .addSnapshotListener(eventListener);
+        database.collection(Constants.KEY_COLLECTION_CHAT)
+                .whereEqualTo(Constants.KEY_SENDER_ID, receivedUser.id)
+                .whereEqualTo(Constants.KEY_RECEIVER_ID, preferenceManger.getString(Constants.KEY_USER_ID))
+                .addSnapshotListener(eventListener);
+    }
+```
+
+oke về cơ bản như thế là đã xong 1 ứng dụng nhắn tin cớ bản gòi (thiếu UI thôi ...)
+
 ## Chat home-screen logic
-Comming-soon nhá
+**Load ra list các conversation của user hiện tại** => Logic này: Lấy ra các conversation có sender hoặc receiver là user hiện tại. Nếu trong conversation đấy chatMessage cuối cùng đc gửi đi là do user hiện tại gửi thì chỉ cần lấy lại tin nhắn mới nhất và ngày tháng gửi tin nhắn là oke: 
+```
+if(documentChange.getType() == DocumentChange.Type.MODIFIED){
+                    for (int i = 0; i< conversations.size(); i++){
+                        String senderId = documentChange.getDocument().getString(Constants.KEY_SENDER_ID);
+                        String receiverId = documentChange.getDocument().getString(Constants.KEY_RECEIVER_ID);
+                        if(conversations.get(i).senderId.equals(senderId) && conversations.get(i).receiverID.equals(receiverId)){
+                            conversations.get(i).message = documentChange.getDocument().getString(Constants.KEY_LAST_MESSAGE);
+                            conversations.get(i).dateObject = documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP);
+                            break;
+                        }
+                    }
+```
+Trong trường hợp conversation được tạo mới từ list user (khi bấm vào floating point ý) thì mình sẽ thực hiện thao tác thêm mới vào list các conversations. Logic chỗ này hơi lú => Nếu cuộc trò chuyện được tạo mới bởi user hiện tại thì mình thực hiện set lại cái ảnh và tên display là của receiver (người đc chọn trong menu floating point). Nhưng nếu conversation được tạo ra bởi 1 user khác thì sao (user khác bấm thêm mới cuộc trò chuyện và chon user hiện tại)? Trong trường hợp này phần ảnh và tên nhận vào sẽ thuộc về sender chứ không phải receiver nữa (swap role ý vì conversation đã được tạo ra ở một tài khoản user khác => user đấy h mới là sender). Lấy senderImage và senderName ra display thôi.
+```
+ if(documentChange.getType() == DocumentChange.Type.ADDED){
+                    String senderId = documentChange.getDocument().getString(Constants.KEY_SENDER_ID);
+                    String receiverId = documentChange.getDocument().getString(Constants.KEY_RECEIVER_ID);
+                    ChatMessage chatMessage = new ChatMessage();
+                    chatMessage.senderId = senderId;
+                    chatMessage.receiverID = receiverId;
+                    if(preferenceManager.getString(Constants.KEY_USER_ID).equals(senderId)){
+                        chatMessage.conversationImage = documentChange.getDocument().getString(Constants.KEY_RECEIVER_IMAGE);
+                        chatMessage.conversationName = documentChange.getDocument().getString(Constants.KEY_RECEIVER_NAME);
+                        chatMessage.conversationId = documentChange.getDocument().getString(Constants.KEY_RECEIVER_ID);
+                    }
+                    else{
+                        chatMessage.conversationImage = documentChange.getDocument().getString(Constants.KEY_SENDER_IMAGE);
+                        chatMessage.conversationName = documentChange.getDocument().getString(Constants.KEY_SENDER_NAME);
+                        chatMessage.conversationId = documentChange.getDocument().getString(Constants.KEY_SENDER_ID);
+                    }
+                    chatMessage.message = documentChange.getDocument().getString(Constants.KEY_LAST_MESSAGE);
+                    chatMessage.dateObject = documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP);
+                    conversations.add(chatMessage);
+                }
+```
+
+Sau khi lấy ra được hết các phần tử conversation của user hiện tại ta thực hiện sắp xếp nó theo thời gian giảm dần (mới đến cũ) và trigger cái notifyDataSetChanged để RecyclerView update UI
+
+```
+ Collections.sort(conversations, (obj1, obj2) -> obj2.dateObject.compareTo(obj1.dateObject));
+            conversationsAdapter.notifyDataSetChanged();
+```
+
+Bước cuối cùng là add cái snapshot listener cho 2 đầu user thôi
+
+```
+ private void listenConversation(){
+        database.collection(Constants.KEY_COLLECTION_CONVERSATIONS)
+                .whereEqualTo(Constants.KEY_SENDER_ID,preferenceManager.getString(Constants.KEY_USER_ID))
+                .addSnapshotListener(eventListener);
+        database.collection(Constants.KEY_COLLECTION_CONVERSATIONS)
+                .whereEqualTo(Constants.KEY_RECEIVER_ID,preferenceManager.getString(Constants.KEY_USER_ID))
+                .addSnapshotListener(eventListener);
+    }
+
+```
+
+***DONE***
+
+
+
+
+
 
 
 
