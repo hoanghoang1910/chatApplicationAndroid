@@ -2,6 +2,6 @@ package com.example.projectchatapplication.listeners;
 
 import com.example.projectchatapplication.models.User;
 
-public interface ConversionListener {
+public interface ConversationListener {
     void onConversationClicked(User user);
 }

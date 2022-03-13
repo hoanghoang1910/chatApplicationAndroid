@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.projectchatapplication.databinding.ItemContainerRecentConversionBinding;
-import com.example.projectchatapplication.listeners.ConversionListener;
+import com.example.projectchatapplication.listeners.ConversationListener;
 import com.example.projectchatapplication.models.ChatMessage;
 import com.example.projectchatapplication.models.User;
 
@@ -19,11 +19,11 @@ import java.util.List;
 public class RecentConversationsAdapter extends RecyclerView.Adapter<RecentConversationsAdapter.ConversionViewHolder> {
 
     private final List<ChatMessage> chatMessages;
-    private final ConversionListener conversionListener;
+    private final ConversationListener conversationListener;
 
-    public RecentConversationsAdapter(List<ChatMessage> chatMessages, ConversionListener conversionListener) {
+    public RecentConversationsAdapter(List<ChatMessage> chatMessages, ConversationListener conversationListener) {
         this.chatMessages = chatMessages;
-        this.conversionListener = conversionListener;
+        this.conversationListener = conversationListener;
     }
 
 
@@ -55,15 +55,15 @@ public class RecentConversationsAdapter extends RecyclerView.Adapter<RecentConve
         }
 
         void setData(ChatMessage chatMessage){
-            binding.imageProfile.setImageBitmap(getConversionImage(chatMessage.conversionImage));
-            binding.textName.setText(chatMessage.conversionName);
+            binding.imageProfile.setImageBitmap(getConversionImage(chatMessage.conversationImage));
+            binding.textName.setText(chatMessage.conversationName);
             binding.textRecentMessage.setText(chatMessage.message);
             binding.getRoot().setOnClickListener(v -> {
                 User user = new User();
-                user.id = chatMessage.conversionId;
-                user.name = chatMessage.conversionName;
-                user.image = chatMessage.conversionImage;
-                conversionListener.onConversationClicked(user);
+                user.id = chatMessage.conversationId;
+                user.name = chatMessage.conversationName;
+                user.image = chatMessage.conversationImage;
+                conversationListener.onConversationClicked(user);
             });
         }
     }

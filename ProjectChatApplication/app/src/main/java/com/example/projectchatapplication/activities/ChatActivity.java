@@ -44,7 +44,7 @@ public class ChatActivity extends AppCompatActivity {
     private ChatAdapter chatAdapter;
     private Preference preferenceManger;
     private FirebaseFirestore database;
-    private String conversionId = null;
+    private String conversationId = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,19 +73,19 @@ public class ChatActivity extends AppCompatActivity {
         message.put(Constants.KEY_MESSAGE, binding.inputMessage.getText().toString());
         message.put(Constants.KEY_TIMESTAMP,new Date());
         database.collection(Constants.KEY_COLLECTION_CHAT).add(message);
-        if(conversionId != null){
-            updateConversion(binding.inputMessage.getText().toString());
+        if(conversationId != null){
+            updateConversation(binding.inputMessage.getText().toString());
         }
         else{
-            HashMap<String, Object> conversion = new HashMap<>();
-            conversion.put(Constants.KEY_SENDER_ID, preferenceManger.getString(Constants.KEY_USER_ID));
-            conversion.put(Constants.KEY_SENDER_NAME, preferenceManger.getString(Constants.KEY_NAME));
-            conversion.put(Constants.KEY_SENDER_IMAGE, preferenceManger.getString(Constants.KEY_IMAGE));
-            conversion.put(Constants.KEY_RECEIVER_NAME, receivedUser.name);
-            conversion.put(Constants.KEY_RECEIVER_IMAGE, receivedUser.image);
-            conversion.put(Constants.KEY_LAST_MESSAGE, binding.inputMessage.getText().toString());
-            conversion.put(Constants.KEY_TIMESTAMP, new Date());
-            addConversion(conversion);
+            HashMap<String, Object> conversation = new HashMap<>();
+            conversation.put(Constants.KEY_SENDER_ID, preferenceManger.getString(Constants.KEY_USER_ID));
+            conversation.put(Constants.KEY_SENDER_NAME, preferenceManger.getString(Constants.KEY_NAME));
+            conversation.put(Constants.KEY_SENDER_IMAGE, preferenceManger.getString(Constants.KEY_IMAGE));
+            conversation.put(Constants.KEY_RECEIVER_NAME, receivedUser.name);
+            conversation.put(Constants.KEY_RECEIVER_IMAGE, receivedUser.image);
+            conversation.put(Constants.KEY_LAST_MESSAGE, binding.inputMessage.getText().toString());
+            conversation.put(Constants.KEY_TIMESTAMP, new Date());
+            addConversation(conversation);
         }
         binding.inputMessage.setText(null);
     }
@@ -101,20 +101,28 @@ public class ChatActivity extends AppCompatActivity {
                 .addSnapshotListener(eventListener);
     }
 
+    //Định nghĩa 1 event listenner theo kiểu snapshotListenner
    private final EventListener<QuerySnapshot> eventListener = ((value, error) -> {
       if(error != null){
           return;
       }
+        // value ở đây là dạng 1 query snapshot trong đó chứa 1 hoặc nhiều document snapshot
+        //  trong trường hợp này mình sử dụng để loop qua tất cả các thay đổi vừa đc nghe thấy trong database
       if(value != null){
           int count = chatMessages.size();
+          // loop qua tất cả các bản ghi có sự thay đổi
           for(DocumentChange documentChange : value.getDocumentChanges()){
+              // Nếu bản ghi mới đc add vào thì thực hiện thêm mới vào list chat
+              // ngoài ra kiểu documentChange còn có các type như modified hay removed tùy vào điều kiện mọi người muốn bắt
              if(documentChange.getType() == DocumentChange.Type.ADDED){
+                 // đoạn này là lấy ra đoạn chat vừa đc thêm mới rồi lưu vào object thôi
                  ChatMessage chatMessage = new ChatMessage();
                  chatMessage.senderId = documentChange.getDocument().getString(Constants.KEY_SENDER_ID);
                  chatMessage.receiverID = documentChange.getDocument().getString(Constants.KEY_RECEIVER_ID);
                  chatMessage.message = documentChange.getDocument().getString(Constants.KEY_MESSAGE);
                  chatMessage.dateTime = getReadableDate(documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP));
                  chatMessage.dateObject = documentChange.getDocument().getDate(Constants.KEY_TIMESTAMP);
+                 //add vào list này
                  chatMessages.add(chatMessage);
              }
           }
@@ -129,8 +137,8 @@ public class ChatActivity extends AppCompatActivity {
           binding.chatRecycleView.setVisibility(View.VISIBLE);
       }
       binding.progressBar.setVisibility(View.GONE);
-      if(conversionId == null){
-          checkForConversion();
+      if(conversationId == null){
+          checkForConversation();
       }
    });
 
@@ -153,36 +161,36 @@ public class ChatActivity extends AppCompatActivity {
         return new SimpleDateFormat("MMMM dd, yyyy - hh:mm a", Locale.getDefault()).format(date);
     }
 
-    private void addConversion(HashMap<String, Object> conversion){
+    private void addConversation(HashMap<String, Object> conversion){
         database.collection(Constants.KEY_COLLECTION_CONVERSATIONS)
                 .add(conversion)
-                .addOnSuccessListener(documentReference -> conversionId = documentReference.getId());
+                .addOnSuccessListener(documentReference -> conversationId = documentReference.getId());
     }
 
-    private void updateConversion(String message){
+    private void updateConversation(String message){
         DocumentReference documentReference = database.collection(Constants.KEY_COLLECTION_CONVERSATIONS)
-                .document(conversionId);
+                .document(conversationId);
         documentReference.update(Constants.KEY_LAST_MESSAGE, message, Constants.KEY_TIMESTAMP, new Date());
     }
 
-    private void checkForConversion(){
+    private void checkForConversation(){
         if(chatMessages.size() != 0){
-            checkForConversionRemotely(preferenceManger.getString(Constants.KEY_USER_ID), receivedUser.id);
-            checkForConversionRemotely(receivedUser.id, preferenceManger.getString(Constants.KEY_USER_ID));
+            checkForConversationRemotely(preferenceManger.getString(Constants.KEY_USER_ID), receivedUser.id);
+            checkForConversationRemotely(receivedUser.id, preferenceManger.getString(Constants.KEY_USER_ID));
         }
     }
 
-    private void checkForConversionRemotely(String senderId , String receiverId){
+    private void checkForConversationRemotely(String senderId , String receiverId){
         database.collection(Constants.KEY_COLLECTION_CONVERSATIONS).whereEqualTo(Constants.KEY_SENDER_ID, senderId)
                 .whereEqualTo(Constants.KEY_RECEIVER_ID, receiverId)
                 .get()
-                .addOnCompleteListener(conversionOnCompleteListener);
+                .addOnCompleteListener(conversationOnCompleteListener);
     }
 
-    private final OnCompleteListener<QuerySnapshot> conversionOnCompleteListener = task -> {
+    private final OnCompleteListener<QuerySnapshot> conversationOnCompleteListener = task -> {
         if(task.isSuccessful() && task.getResult() != null && task.getResult().getDocuments().size() > 0){
             DocumentSnapshot documentSnapshot = task.getResult().getDocuments().get(0);
-            conversionId = documentSnapshot.getId();
+            conversationId = documentSnapshot.getId();
         }
     };
 
