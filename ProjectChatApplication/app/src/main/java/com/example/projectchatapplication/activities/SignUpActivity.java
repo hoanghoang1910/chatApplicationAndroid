@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.example.projectchatapplication.databinding.ActivitySignUpBinding;
+import com.example.projectchatapplication.utilities.CommonFunction;
 import com.example.projectchatapplication.utilities.Constants;
 import com.example.projectchatapplication.utilities.Preference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -79,6 +80,7 @@ public class SignUpActivity extends AppCompatActivity {
                     preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
                     preferenceManager.putString(Constants.KEY_USER_ID, documentReference.getId());
                     preferenceManager.putString(Constants.KEY_NAME, binding.inputName.getText().toString());
+                    preferenceManager.putString(Constants.KEY_EMAIL, binding.inputEmail.getText().toString());
                     preferenceManager.putString(Constants.KEY_IMAGE, encodeImage);
                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -110,7 +112,7 @@ public class SignUpActivity extends AppCompatActivity {
                             Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
                             binding.imageProfile.setImageBitmap(bitmap);
                             binding.textAddImage.setVisibility(View.GONE);
-                            encodeImage = encodeImage(bitmap);
+                            encodeImage = CommonFunction.encodeImage(bitmap);
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
                         }

@@ -1,5 +1,6 @@
 package com.example.projectchatapplication.activities;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -15,6 +16,7 @@ import com.example.projectchatapplication.databinding.ActivityMainBinding;
 import com.example.projectchatapplication.listeners.ConversationListener;
 import com.example.projectchatapplication.models.ChatMessage;
 import com.example.projectchatapplication.models.User;
+import com.example.projectchatapplication.utilities.CommonFunction;
 import com.example.projectchatapplication.utilities.Constants;
 import com.example.projectchatapplication.utilities.Preference;
 import com.google.firebase.firestore.DocumentChange;
@@ -50,13 +52,13 @@ public class MainActivity extends AppCompatActivity implements ConversationListe
         getToken();
         setListenerSignOut();
         setListenerFloatingPoint();
+        setListenerUpdateProfile();
         listenConversation();
     }
 
     private void init(){
         conversations = new ArrayList<>();
         conversationsAdapter = new RecentConversationsAdapter(conversations, this);
-
         binding.conversationRecyclerView.setAdapter(conversationsAdapter);
         database = FirebaseFirestore.getInstance();
     }
@@ -70,18 +72,22 @@ public class MainActivity extends AppCompatActivity implements ConversationListe
                 startActivity(new Intent(getApplicationContext(), UserActivity.class)));
     }
 
+    private void setListenerUpdateProfile(){
+        binding.imageProfile.setOnClickListener(v ->
+                startActivity(new Intent(getApplicationContext(), UpdateProfilesActivity.class))
+        );
+    }
+
     private void loadUserDetails(){
         binding.textName.setText(preferenceManager.getString(Constants.KEY_NAME));
-        byte[] bytes = Base64.decode(preferenceManager.getString(Constants.KEY_IMAGE), Base64.DEFAULT);
-        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0,bytes.length);
-        binding.imageProfile.setImageBitmap(bitmap);
+        binding.imageProfile.setImageBitmap(
+                CommonFunction.getBitmapFromEncoded(preferenceManager.getString(Constants.KEY_IMAGE))
+        );
     }
 
     private void showToast(String message){
         Toast.makeText(getApplicationContext(),message,Toast.LENGTH_SHORT).show();
     }
-
-
 
     private void listenConversation(){
         database.collection(Constants.KEY_COLLECTION_CONVERSATIONS)
@@ -173,5 +179,17 @@ public class MainActivity extends AppCompatActivity implements ConversationListe
         Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
         intent.putExtra(Constants.KEY_USER,user);
         startActivity(intent);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        loadUserDetails();
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadUserDetails();
     }
 }

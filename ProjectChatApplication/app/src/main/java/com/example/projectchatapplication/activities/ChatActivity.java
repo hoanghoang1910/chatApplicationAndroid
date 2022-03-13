@@ -1,9 +1,13 @@
 package com.example.projectchatapplication.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
 import android.view.View;
@@ -21,6 +25,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -187,4 +193,22 @@ public class ChatActivity extends AppCompatActivity {
             conversationId = documentSnapshot.getId();
         }
     };
+
+    private void sendNotification(String title, String message){
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(this, Constants.NOTIFICATION_CHANNEL)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setSmallIcon(android.R.drawable.ic_dialog_info);
+        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            NotificationChannel channel = new NotificationChannel(
+                    Constants.NOTIFICATION_CHANNEL,
+                    "New Message",
+                    NotificationManager.IMPORTANCE_HIGH
+            );
+            manager.createNotificationChannel(channel);
+        }
+        manager.notify(Constants.NOTIFICATION_ID, builder.build());
+    }
 }

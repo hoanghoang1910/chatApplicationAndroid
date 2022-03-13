@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.UpdateProfilesActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:overScrollMode="never"
+        android:padding="@dimen/_20ssp"
+        android:scrollbars="none"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        tools:context=".activities.UpdateProfilesActivity">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:id="@+id/layoutImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_5sdp">
+
+                <com.makeramen.roundedimageview.RoundedImageView
+                    android:id="@+id/imageNewProfile"
+                    android:layout_width="@dimen/_80sdp"
+                    android:layout_height="@dimen/_80sdp"
+                    android:background="@drawable/background_image"
+                    android:scaleType="centerCrop"
+                    app:riv_oval="true" />
+
+                <TextView
+                    android:id="@+id/textAddImage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/add_image"
+                    android:textColor="@color/secondary_text"
+                    android:textSize="@dimen/_10ssp" />
+            </FrameLayout>
+
+            <EditText
+                android:id="@+id/inputUpdateName"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_45sdp"
+                android:layout_marginTop="@dimen/_20sdp"
+                android:background="@drawable/background_input"
+                android:hint="@string/name"
+                android:imeOptions="actionNext"
+                android:importantForAutofill="no"
+                android:inputType="text"
+                android:paddingStart="@dimen/_16sdp"
+                android:paddingEnd="@dimen/_16sdp"
+                android:textColor="@color/primary_text"
+                android:textSize="@dimen/_13ssp" />
+
+            <EditText
+                android:id="@+id/inputUpdateEmail"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_45sdp"
+                android:layout_marginTop="@dimen/_15sdp"
+                android:background="@drawable/background_input"
+                android:hint="@string/email"
+                android:imeOptions="actionNext"
+                android:importantForAutofill="no"
+                android:inputType="textEmailAddress"
+                android:paddingStart="@dimen/_16sdp"
+                android:paddingEnd="@dimen/_16sdp"
+                android:textColor="@color/primary_text"
+                android:textSize="@dimen/_13ssp" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_16sdp"
+                android:animateLayoutChanges="true">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/buttonCfmUpdateProfile"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_50sdp"
+                    android:text="@string/update_profile"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_13ssp"
+                    android:textStyle="bold"
+                    app:cornerRadius="@dimen/_8sdp" />
+
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="@dimen/_25sdp"
+                    android:layout_height="@dimen/_25sdp"
+                    android:layout_gravity="center"
+                    android:visibility="invisible" />
+            </FrameLayout>
+
+            <EditText
+                android:id="@+id/inputOldPassword"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_45sdp"
+                android:layout_marginTop="@dimen/_15sdp"
+                android:background="@drawable/background_input"
+                android:ems="10"
+                android:hint="@string/old_password"
+                android:inputType="textPassword"
+                android:paddingStart="@dimen/_16sdp"
+                android:paddingEnd="@dimen/_16sdp"
+                android:textColor="@color/primary_text"
+                android:textSize="@dimen/_13ssp" />
+
+            <EditText
+                android:id="@+id/inputNewPassword"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_45sdp"
+                android:layout_marginTop="@dimen/_15sdp"
+                android:background="@drawable/background_input"
+                android:hint="@string/password"
+                android:imeOptions="actionNext"
+                android:importantForAutofill="no"
+                android:inputType="textPassword"
+                android:paddingStart="@dimen/_16sdp"
+                android:paddingEnd="@dimen/_16sdp"
+                android:textColor="@color/primary_text"
+                android:textSize="@dimen/_13ssp" />
+
+            <EditText
+                android:id="@+id/inputConfirmNewPassword"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_45sdp"
+                android:layout_marginTop="@dimen/_16sdp"
+                android:background="@drawable/background_input"
+                android:hint="@string/confirm_password"
+                android:imeOptions="actionDone"
+                android:importantForAutofill="no"
+                android:inputType="textPassword"
+                android:paddingStart="@dimen/_16sdp"
+                android:paddingEnd="@dimen/_16sdp"
+                android:textColor="@color/primary_text"
+                android:textSize="@dimen/_13ssp" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Button
+                    android:id="@+id/buttonChangePassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_50sdp"
+                    android:layout_marginTop="@dimen/_15sdp"
+                    android:text="@string/update_password"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_13ssp"
+                    android:textStyle="bold"
+                    app:cornerRadius="@dimen/_8sdp" />
+
+                <ProgressBar
+                    android:id="@+id/progressBar2"
+                    android:layout_width="@dimen/_25sdp"
+                    android:layout_height="@dimen/_25sdp"
+                    android:layout_gravity="center"
+                    android:visibility="invisible" />
+
+            </FrameLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

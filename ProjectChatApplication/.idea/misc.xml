@@ -26,6 +26,11 @@
         <entry key="..\:/Spring2022/PRM/ProjectChatApplication/app/src/main/res/layout/item_container_received_message.xml" value="0.29270833333333335" />
         <entry key="..\:/Spring2022/PRM/ProjectChatApplication/app/src/main/res/layout/item_container_sent_message.xml" value="0.29270833333333335" />
         <entry key="..\:/Spring2022/PRM/ProjectChatApplication/app/src/main/res/layout/item_cotainer_user.xml" value="0.29322916666666665" />
+        <entry key="..\:/Study/StudyProject/PRM392/chatApplicationAndroid/ProjectChatApplication/app/src/main/res/layout/activity_main.xml" value="0.259375" />
+        <entry key="..\:/Study/StudyProject/PRM392/chatApplicationAndroid/ProjectChatApplication/app/src/main/res/layout/activity_sign_up.xml" value="0.17300724637681159" />
+        <entry key="..\:/Study/StudyProject/PRM392/chatApplicationAndroid/ProjectChatApplication/app/src/main/res/layout/activity_user_profiles.xml" value="0.259375" />
+        <entry key="..\:/Study/StudyProject/PRM392/chatApplicationAndroid/ProjectChatApplication/app/src/main/res/layout/activity_users.xml" value="0.259375" />
+        <entry key="..\:/Study/StudyProject/PRM392/chatApplicationAndroid/ProjectChatApplication/app/src/main/res/layout/user_profiles.xml" value="0.264" />
       </map>
     </option>
   </component>
