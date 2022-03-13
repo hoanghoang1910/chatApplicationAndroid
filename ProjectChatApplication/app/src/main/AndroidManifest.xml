@@ -12,8 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ProjectChatApplication">
         <activity
-            android:name=".Profiles"
-            android:exported="false" />
+            android:name=".activities.UpdateProfilesActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
         <activity
             android:name=".activities.ChatActivity"
             android:exported="false"

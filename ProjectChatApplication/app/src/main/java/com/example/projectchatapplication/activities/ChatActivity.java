@@ -25,6 +25,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -190,7 +192,7 @@ public class ChatActivity extends AppCompatActivity {
                 .setContentTitle(title)
                 .setContentText(message)
                 .setSmallIcon(android.R.drawable.ic_dialog_info);
-        NotificationManager manager = (NotificationManager) getSystemService(Constants.NOTIFICATION_CHANNEL);
+        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             NotificationChannel channel = new NotificationChannel(
                     Constants.NOTIFICATION_CHANNEL,

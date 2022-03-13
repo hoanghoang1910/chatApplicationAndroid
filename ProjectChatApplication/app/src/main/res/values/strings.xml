@@ -12,4 +12,8 @@
     <string name="sign_up">Sign Up</string>
     <string name="select_user">Select User</string>
     <string name="type_a_message">Type a message</string>
+    <string name="update_profile">Update Profiles</string>
+    <string name="update_password">Update Password</string>
+    <string name="old_password">Old Password</string>
+    <string name="new_password">New Password</string>
 </resources>
