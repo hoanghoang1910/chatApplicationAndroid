@@ -49,7 +49,5 @@ dependencies {
 
     //Rounded image view
     implementation 'com.makeramen:roundedimageview:2.3.0'
-
-    //
     implementation 'androidx.multidex:multidex:2.0.1'
 }

@@ -33,7 +33,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements ConversationListener
+public class MainActivity extends BaseActivity implements ConversationListener
 {
 
     private ActivityMainBinding binding;
