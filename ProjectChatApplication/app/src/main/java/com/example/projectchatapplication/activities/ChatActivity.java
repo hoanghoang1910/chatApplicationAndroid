@@ -5,13 +5,18 @@ import androidx.core.app.NotificationCompat;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 
+import com.example.projectchatapplication.R;
 import com.example.projectchatapplication.adapter.ChatAdapter;
 import com.example.projectchatapplication.databinding.ActivityChatBinding;
 import com.example.projectchatapplication.models.ChatMessage;
@@ -19,6 +24,11 @@ import com.example.projectchatapplication.models.User;
 import com.example.projectchatapplication.utilities.Constants;
 import com.example.projectchatapplication.utilities.Preference;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.HttpResponse;
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.client.HttpClient;
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.client.methods.HttpPost;
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.entity.StringEntity;
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.http.impl.client.HttpClientBuilder;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -28,6 +38,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -81,12 +95,26 @@ public class ChatActivity extends AppCompatActivity {
             conversation.put(Constants.KEY_SENDER_ID, preferenceManger.getString(Constants.KEY_USER_ID));
             conversation.put(Constants.KEY_SENDER_NAME, preferenceManger.getString(Constants.KEY_NAME));
             conversation.put(Constants.KEY_SENDER_IMAGE, preferenceManger.getString(Constants.KEY_IMAGE));
+            conversation.put(Constants.KEY_RECEIVER_ID, receivedUser.id);
             conversation.put(Constants.KEY_RECEIVER_NAME, receivedUser.name);
             conversation.put(Constants.KEY_RECEIVER_IMAGE, receivedUser.image);
             conversation.put(Constants.KEY_LAST_MESSAGE, binding.inputMessage.getText().toString());
             conversation.put(Constants.KEY_TIMESTAMP, new Date());
             addConversation(conversation);
         }
+        String inputMessage = binding.inputMessage.getText().toString();
+        database.collection(Constants.KEY_COLLECTION_USERS)
+                .document(receivedUser.id)
+                .get()
+                .addOnCompleteListener(task ->{
+                if (task.isSuccessful() && task.getResult()!= null){
+                    notifyUser(
+                        task.getResult().getString(Constants.KEY_FCM_TOKEN),
+                        preferenceManger.getString(Constants.KEY_NAME),
+                        inputMessage.length() <= 20 ? inputMessage : inputMessage.substring(0, 20) + "..."
+                    );
+                }
+            });
         binding.inputMessage.setText(null);
     }
 
@@ -194,21 +222,43 @@ public class ChatActivity extends AppCompatActivity {
         }
     };
 
-    private void sendNotification(String title, String message){
-        NotificationCompat.Builder builder =
-                new NotificationCompat.Builder(this, Constants.NOTIFICATION_CHANNEL)
-                .setContentTitle(title)
-                .setContentText(message)
-                .setSmallIcon(android.R.drawable.ic_dialog_info);
-        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            NotificationChannel channel = new NotificationChannel(
-                    Constants.NOTIFICATION_CHANNEL,
-                    "New Message",
-                    NotificationManager.IMPORTANCE_HIGH
-            );
-            manager.createNotificationChannel(channel);
-        }
-        manager.notify(Constants.NOTIFICATION_ID, builder.build());
+    private void notifyUser(String to, String from, String body) {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    if (to == null) return;
+                    HttpClient client = HttpClientBuilder.create().build();
+                    HttpPost post = new HttpPost("https://fcm.googleapis.com/fcm/send");
+                    post.setHeader("Content-type", "application/json");
+                    post.setHeader("Authorization", Constants.FCM_SECRET_KEY);
+
+                    JSONObject message = new JSONObject();
+                    message.put("to", to);
+                    message.put("priority", "high");
+
+                    JSONObject notification = new JSONObject();
+                    notification.put("title", from);
+                    notification.put("body", body);
+                    notification.put("icon", "ic_baseline_notifications_active_24");
+                    message.put("notification", notification);
+
+
+                    JSONObject data = new JSONObject();
+                    data.put("id", receivedUser.id);
+                    data.put("name", receivedUser.name);
+                    message.put("data", data);
+
+
+                    post.setEntity(new StringEntity(message.toString(), "UTF-8"));
+                    HttpResponse response = client.execute(post);
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        };
+        Thread thread = new Thread(runnable);
+        thread.start();
     }
 }
