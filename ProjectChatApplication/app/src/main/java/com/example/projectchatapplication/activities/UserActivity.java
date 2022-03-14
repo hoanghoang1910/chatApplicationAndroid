@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import com.example.projectchatapplication.adapter.UserAdapter;
 
@@ -56,6 +57,7 @@ public class UserActivity extends AppCompatActivity implements UserListener {
                             user.image = documentSnapshot.getString(Constants.KEY_IMAGE);
                             user.token = documentSnapshot.getString(Constants.KEY_FCM_TOKEN);
                             user.id = documentSnapshot.getId();
+                            Log.d("this", documentSnapshot.getId().toString());
                             users.add(user);
                         }
                         if(users.size() > 0){
