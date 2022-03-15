@@ -11,21 +11,25 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.projectchatapplication.databinding.ItemContainerReceivedMessageBinding;
 import com.example.projectchatapplication.databinding.ItemContainerSentMessageBinding;
 import com.example.projectchatapplication.models.ChatMessage;
+import com.example.projectchatapplication.utilities.CommonFunction;
+import com.example.projectchatapplication.utilities.Constants;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 
 public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final List<ChatMessage> chatMessageList;
-    private final Bitmap receiverProfileImage;
+    private final String receiverId;
+    private Bitmap receiverProfileImage;
     private final String senderId;
 
     public static final int VIEW_TYPE_SENT = 1;
     public static final int VIEW_TYPE_RECEIVED = 2;
 
-    public ChatAdapter(List<ChatMessage> chatMessageList, Bitmap receiverProfileImage, String senderId) {
+    public ChatAdapter(List<ChatMessage> chatMessageList, String receiverId, String senderId) {
         this.chatMessageList = chatMessageList;
-        this.receiverProfileImage = receiverProfileImage;
+        this.receiverId = receiverId;
         this.senderId = senderId;
     }
 
@@ -50,7 +54,24 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             ((SentMessageViewHolder) holder).setData(chatMessageList.get(position));
         }
         else{
-            ((ReceivedMessageViewHolder) holder).setData(chatMessageList.get(position), receiverProfileImage);
+            Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    FirebaseFirestore database = FirebaseFirestore.getInstance();
+                    database.collection(Constants.KEY_COLLECTION_USERS)
+                            .document(receiverId)
+                            .get()
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful() && task.getResult() != null){
+                                    receiverProfileImage = CommonFunction.getBitmapFromEncoded(
+                                            task.getResult().getString(Constants.KEY_IMAGE));
+                                    ((ReceivedMessageViewHolder) holder).setData(chatMessageList.get(position), receiverProfileImage);
+                                }
+                            });
+                }
+            };
+            Thread thread = new Thread(runnable);
+            thread.start();
         }
     }
 
