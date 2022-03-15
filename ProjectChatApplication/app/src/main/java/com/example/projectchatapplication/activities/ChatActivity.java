@@ -65,20 +65,24 @@ public class ChatActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        database = FirebaseFirestore.getInstance();
+        init();
         super.onCreate(savedInstanceState);
         binding = ActivityChatBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         loadReceiverDetails();
         setListeners();
-        init();
         listenMessages();
+        setChatAdapter();
     }
 
     private void init(){
         preferenceManger = new Preference(getApplicationContext());
+        database = FirebaseFirestore.getInstance();
+    }
+
+    private void setChatAdapter(){
         chatMessages = new ArrayList<>();
-        chatAdapter = new ChatAdapter(chatMessages,getBitmapFromEncoded(receivedUser.image),
+        chatAdapter = new ChatAdapter(chatMessages, receivedUser.id,
                 preferenceManger.getString(Constants.KEY_USER_ID));
         binding.chatRecycleView.setAdapter(chatAdapter);
     }
@@ -213,20 +217,8 @@ public class ChatActivity extends BaseActivity {
             receivedUser = new User();
             receivedUser.id = getIntent().getStringExtra("id");
             receivedUser.name = getIntent().getStringExtra("name");
-            receivedUser.image = "";
-            database.collection(Constants.KEY_COLLECTION_USERS)
-                    .document(receivedUser.id)
-                    .get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful() && task.getResult() != null){
-                            receivedUser.image = task.getResult().getString(Constants.KEY_IMAGE);
-                            binding.textName.setText(receivedUser.name);
-                        }
-                    });
         }
-        else {
-            binding.textName.setText(receivedUser.name);
-        }
+        binding.textName.setText(receivedUser.name);
     }
 
     private void setListeners(){
