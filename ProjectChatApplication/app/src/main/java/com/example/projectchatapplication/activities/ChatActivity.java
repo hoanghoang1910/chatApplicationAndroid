@@ -65,6 +65,7 @@ public class ChatActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        database = FirebaseFirestore.getInstance();
         super.onCreate(savedInstanceState);
         binding = ActivityChatBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -80,7 +81,6 @@ public class ChatActivity extends BaseActivity {
         chatAdapter = new ChatAdapter(chatMessages,getBitmapFromEncoded(receivedUser.image),
                 preferenceManger.getString(Constants.KEY_USER_ID));
         binding.chatRecycleView.setAdapter(chatAdapter);
-        database = FirebaseFirestore.getInstance();
     }
     private void showToast(String message){
         Toast.makeText(getApplicationContext(),message,Toast.LENGTH_SHORT).show();
@@ -209,7 +209,24 @@ public class ChatActivity extends BaseActivity {
 
     private void loadReceiverDetails(){
         receivedUser = (User) getIntent().getSerializableExtra(Constants.KEY_USER);
-        binding.textName.setText(receivedUser.name);
+        if (receivedUser == null){
+            receivedUser = new User();
+            receivedUser.id = getIntent().getStringExtra("id");
+            receivedUser.name = getIntent().getStringExtra("name");
+            receivedUser.image = "";
+            database.collection(Constants.KEY_COLLECTION_USERS)
+                    .document(receivedUser.id)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && task.getResult() != null){
+                            receivedUser.image = task.getResult().getString(Constants.KEY_IMAGE);
+                            binding.textName.setText(receivedUser.name);
+                        }
+                    });
+        }
+        else {
+            binding.textName.setText(receivedUser.name);
+        }
     }
 
     private void setListeners(){
@@ -281,10 +298,9 @@ public class ChatActivity extends BaseActivity {
                     notification.put("icon", "ic_baseline_notifications_active_24");
                     message.put("notification", notification);
 
-
                     JSONObject data = new JSONObject();
-                    data.put("id", receivedUser.id);
-                    data.put("name", receivedUser.name);
+                    data.put("id", preferenceManger.getString(Constants.KEY_USER_ID));
+                    data.put("name", preferenceManger.getString(Constants.KEY_NAME));
                     message.put("data", data);
 
 
