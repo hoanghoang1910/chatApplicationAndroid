@@ -276,8 +276,9 @@ public class ChatActivity extends BaseActivity {
 
 
                     JSONObject data = new JSONObject();
-                    data.put("id", receivedUser.id);
-                    data.put("name", receivedUser.name);
+                    data.put("id", preferenceManger.getString(Constants.KEY_USER_ID));
+                    data.put("name", preferenceManger.getString(Constants.KEY_NAME));
+                    data.put("image", "");
                     message.put("data", data);
 
 
