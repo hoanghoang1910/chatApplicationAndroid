@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.projectchatapplication.R;
 import com.example.projectchatapplication.adapter.ChatAdapter;
@@ -81,11 +82,17 @@ public class ChatActivity extends BaseActivity {
         binding.chatRecycleView.setAdapter(chatAdapter);
         database = FirebaseFirestore.getInstance();
     }
-
+    private void showToast(String message){
+        Toast.makeText(getApplicationContext(),message,Toast.LENGTH_SHORT).show();
+    }
     private void sendMessage(){
         HashMap<String, Object> message = new HashMap<>();
         message.put(Constants.KEY_SENDER_ID, preferenceManger.getString(Constants.KEY_USER_ID));
         message.put(Constants.KEY_RECEIVER_ID, receivedUser.id);
+        if (binding.inputMessage.getText().toString().trim().length() < 1) {
+            showToast("Message can not be empty. Try again!");
+            return;
+        }
         message.put(Constants.KEY_MESSAGE, binding.inputMessage.getText().toString());
         message.put(Constants.KEY_TIMESTAMP,new Date());
         database.collection(Constants.KEY_COLLECTION_CHAT).add(message);
