@@ -295,7 +295,6 @@ public class ChatActivity extends BaseActivity {
                     data.put("name", preferenceManger.getString(Constants.KEY_NAME));
                     message.put("data", data);
 
-
                     post.setEntity(new StringEntity(message.toString(), "UTF-8"));
                     HttpResponse response = client.execute(post);
                 }

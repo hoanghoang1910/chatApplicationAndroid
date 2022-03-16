@@ -55,12 +55,31 @@ public class UpdateProfilesActivity extends AppCompatActivity {
 
     private void setListenerForUpdateProfiles(){
         binding.buttonCfmUpdateProfile.setOnClickListener(v -> {
-            updateProfiles();
+            if (checkNotChangeEmail())
+                updateProfiles();
+            else {
+                FirebaseFirestore database = FirebaseFirestore.getInstance();
+                database.collection(Constants.KEY_COLLECTION_USERS)
+                        .whereEqualTo(Constants.KEY_EMAIL, binding.inputUpdateEmail.getText().toString())
+                        .get()
+                        .addOnCompleteListener(task -> {
+                            if(task.isSuccessful()  && task.getResult() != null && task.getResult().getDocuments().size() > 0){
+                                showToast("This email is used!");
+                            }
+                            else {
+                                updateProfiles();
+                            }
+                        });
+            }
         });
     }
 
     private void setListenerForUpdatePassword(){
         binding.buttonChangePassword.setOnClickListener(v -> {
+            if (!checkValidInputPassword()) {
+                showToast("Password must not empty!");
+                return;
+            }
             FirebaseFirestore database = FirebaseFirestore.getInstance();
             database.collection(Constants.KEY_COLLECTION_USERS)
                     .whereEqualTo(Constants.KEY_EMAIL, preferenceManager.getString(Constants.KEY_EMAIL))
@@ -117,6 +136,27 @@ public class UpdateProfilesActivity extends AppCompatActivity {
             return true;
         }
         return false;
+    }
+
+    private boolean checkValidInputPassword(){
+        if (binding.inputNewPassword.getText().toString().trim().isEmpty()
+                || binding.inputConfirmNewPassword.getText().toString().trim().isEmpty()
+                || binding.inputOldPassword.getText().toString().trim().isEmpty())
+            return false;
+        else return true;
+    }
+
+    private boolean checkValidInputProfiles(){
+        if (binding.inputUpdateName.getText().toString().trim().isEmpty()
+        || binding.inputUpdateEmail.getText().toString().trim().isEmpty())
+            return false;
+        else return true;
+    }
+
+    private boolean checkNotChangeEmail(){
+        if (binding.inputUpdateEmail.getText().toString().trim().equals(preferenceManager.getString(Constants.KEY_EMAIL)))
+            return true;
+        else return false;
     }
 
     private void updateProfiles(){
