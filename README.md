@@ -581,7 +581,7 @@ Kiểu POST
 ***Thêm các HEADER***  
 Authorization: key=<your_secret_key_go_here>  
 Content-type: application/json  
-***Body***
+***Body***  
 {  
    "notification": {  
        "title": "This is title",  
@@ -594,19 +594,19 @@ Content-type: application/json
        "key2": "value2"  
    }  
 }  
-//Đối với các notification được handle bởi FCM thì các extras sẽ được đọc từ các data
-Gọi API trong java:
+//Đối với các notification được handle bởi FCM thì các extras sẽ được đọc từ các data  
+Gọi API trong java:  
 Sử dụng các thư viện hỗ trợ kết nối HTTP  
 Trong trường hợp nhóm mình thì sử dụng thư viện 'com.google.firebase:firebase-crashlytics-buildtools:2.8.1'  
-Đầu tiên tạo 1 HTTPClient: HttpClient client = HttpClientBuilder.create().build();
-Tạo 1 HttpPost: HttpPost post = new HttpPost("url comes here"); (Nếu tạo GET thì HttpGet, DELETE thì HttpDelete, ...)
+Đầu tiên tạo 1 HTTPClient: HttpClient client = HttpClientBuilder.create().build();  
+Tạo 1 HttpPost: HttpPost post = new HttpPost("url comes here"); (Nếu tạo GET thì HttpGet, DELETE thì HttpDelete, ...)  
 Tạo 1 JSONObject: JSONObject message = new JSONObject(); //Json object này sẽ tương tự với 1 MAP, muốn add thì sẽ put 1 cặp key - value với key là string  
 Send Http Request đi và nhận về response:  
                     post.setEntity(new StringEntity(message.toString(), "UTF-8"));  
                     HttpResponse response = client.execute(post);   
 
-***Handle notification khi nhận***
-Tạo 1 class extends FirebaseMessagingService
+***Handle notification khi nhận***  
+Tạo 1 class extends FirebaseMessagingService  
 Đối với các notification nhận khi app chạy dưới nền thì sẽ hoàn toàn được handle bởi FCM  
 Đối với các notification nhận khi app đang chạy trên màn hình thì sẽ được handle bởi class extends ***FirebaseMessagingService***  
    Xử lý message nhận về trong hàm ***public void onMessageReceived(@NonNull RemoteMessage remoteMessage)***  
